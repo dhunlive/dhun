@@ -144,7 +144,7 @@ export async function deleteAccount(input: {
     await client.query(
       `UPDATE user_profiles
           SET display_name = NULL, avatar_url = NULL, bio = NULL,
-              gender = NULL, date_of_birth = NULL
+              gender = NULL, date_of_birth = NULL, languages = '{}'
         WHERE user_id = $1`,
       [input.userId],
     );

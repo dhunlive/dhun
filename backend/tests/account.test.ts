@@ -328,7 +328,7 @@ describe('deleting an account', () => {
     await request(app)
       .patch('/v1/auth/profile')
       .set('Authorization', `Bearer ${account.accessToken}`)
-      .send({ displayName: 'Rahul', dateOfBirth: '1998-04-12' })
+      .send({ displayName: 'Rahul', dateOfBirth: '1998-04-12', languages: ['bho', 'hi'] })
       .expect(200);
 
     await request(app)
@@ -337,11 +337,13 @@ describe('deleting an account', () => {
       .send({ password: PASSWORD })
       .expect(200);
 
-    const profile = await pool.query<{ display_name: string | null }>(
-      'SELECT display_name FROM user_profiles WHERE user_id = $1',
+    const profile = await pool.query<{ display_name: string | null; languages: string[] }>(
+      'SELECT display_name, languages FROM user_profiles WHERE user_id = $1',
       [account.user.id],
     );
     expect(profile.rows[0].display_name).toBeNull();
+    // Migration 040's languages are profile data like the name, and go with it.
+    expect(profile.rows[0].languages).toEqual([]);
 
     // Push tokens are personal data AND a delivery channel. Both reasons to go.
     const devices = await pool.query('SELECT 1 FROM user_devices WHERE user_id = $1', [
