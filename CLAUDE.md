@@ -637,6 +637,16 @@ walkthrough, the costs, and what notices each failure are there.
 - **Open (ledger-decisions § F6):** one host's balance row serialises gifts to that host —
   clean at 40 gifts/s on a laptop, queueing at 70. Re-measure on staging, then decide.
 
+### `site/` — dhunlive.com, built, not deployed
+
+Static HTML and CSS, no build step, English with a Hindi switch (`i18n.js`), self-hosted
+fonts, a CSP that allows only its own origin. The home page and the account deletion page
+Google Play requires. Deployed by Cloudflare Pages with `site` as the output folder.
+**Read `docs/website.md` first**: it lists what must be filled in before launch (the
+Grievance Officer's name, the company's CIN, the mailboxes, privacy and terms) and the
+rules. Every claim must be true of the app, it never promises earnings, and it never adds
+an undecided feature. Anything in `site/` is public, so notes go in `docs/`.
+
 ### `mobile/` — 35 routes, 31 of them built (the four legal pages wait for a lawyer's text).
 
 Expo SDK 57 · React Native 0.86 · React 19.2 · expo-router. EAS project

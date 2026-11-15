@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Delete your Dhun account</title>
+    <meta
+      name="description"
+      content="How to delete your Dhun account, what is deleted, and what Dhunlive keeps and for how long."
+    />
+    <meta name="theme-color" content="#fff9f2" />
+    <link rel="canonical" href="https://dhunlive.com/delete-account" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/i18n.js" defer></script>
+  </head>
+  <body data-page="delete">
+    <a class="skip" href="#main" data-i18n="skip">Skip to content</a>
+
+    <header class="top light">
+      <div class="wrap">
+        <a class="brand" href="/" aria-label="Dhun home">
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <rect width="32" height="32" rx="9" fill="#FF4D6D" />
+            <rect x="8" y="13" width="3" height="6" rx="1.5" fill="#fff" />
+            <rect x="14.5" y="8" width="3" height="16" rx="1.5" fill="#fff" />
+            <rect x="21" y="11" width="3" height="10" rx="1.5" fill="#fff" />
+          </svg>
+          dhun
+        </a>
+        <nav class="nav" aria-label="Main">
+          <a class="nav-link" href="/#contact" data-i18n="nav.contact">Contact</a>
+          <button class="lang-switch" type="button" data-lang-switch hidden>हिन्दी</button>
+        </nav>
+      </div>
+    </header>
+
+    <!--
+      Google Play requires a public web page where a user can ask for their
+      account to be deleted, saying what is deleted and what is kept. This is
+      that page; its URL goes into Play Console > App content > Data safety.
+
+      Every statement below matches backend/src/modules/auth/account.service.ts
+      (deleteAccount). Change one, change the other.
+    -->
+    <main id="main" class="doc">
+      <div class="wrap">
+        <p class="eyebrow" data-i18n="del.eyebrow">Your account</p>
+        <h1 data-i18n="del.title">Delete your Dhun account</h1>
+        <p class="lede" data-i18n="del.lede">
+          You can delete your account yourself, in the app, at any time. It takes effect at once and
+          signs you out on every phone.
+        </p>
+
+        <h2 data-i18n="del.app.title">In the app</h2>
+        <ol>
+          <li data-i18n="del.app.1">Open Dhun and go to the <span class="path">Me</span> tab.</li>
+          <li data-i18n="del.app.2">Tap <span class="path">Account and security</span>.</li>
+          <li data-i18n="del.app.3">Tap <span class="path">Delete account</span>.</li>
+          <li data-i18n="del.app.4">
+            Confirm. If you sign in with an email address, enter your password.
+          </li>
+        </ol>
+
+        <h2 data-i18n="del.email.title">If you can't open the app</h2>
+        <p data-i18n="del.email.body">
+          Email <a href="mailto:support@dhunlive.com?subject=Delete%20my%20account">support@dhunlive.com</a>
+          with the subject "Delete my account". Write from the email address on your account, or
+          include the phone number you signed up with. We will send a code to that number or address
+          to confirm the account is yours, then delete it within 7 days.
+        </p>
+
+        <div class="callout">
+          <strong data-i18n="del.before.title">Before you delete</strong>
+          <span data-i18n="del.before.body"
+            >Coins and gems you have not spent, and points you have not withdrawn, end with your
+            account and cannot be recovered. If you are a host, withdraw your points first.</span
+          >
+        </div>
+
+        <h2 data-i18n="del.what.title">What happens to your data</h2>
+        <div class="two-col">
+          <div>
+            <h3 data-i18n="del.deleted.title">Deleted straight away</h3>
+            <ul>
+              <li data-i18n="del.deleted.1">Your phone number and email address</li>
+              <li data-i18n="del.deleted.2">Your password</li>
+              <li data-i18n="del.deleted.3">Your name, photo, bio, gender and date of birth</li>
+              <li data-i18n="del.deleted.4">The languages you chose</li>
+              <li data-i18n="del.deleted.5">Your devices and notification settings</li>
+              <li data-i18n="del.deleted.6">Every signed-in session</li>
+            </ul>
+          </div>
+          <div>
+            <h3 data-i18n="del.kept.title">Kept, without your name</h3>
+            <ul>
+              <li data-i18n="del.kept.1">
+                A record of coin purchases, gifts and payouts, with no name, number or email attached
+              </li>
+              <li data-i18n="del.kept.2">
+                Messages and gifts you sent stay where they are, but no longer show your name
+              </li>
+            </ul>
+          </div>
+        </div>
+        <p data-i18n="del.why">
+          Indian tax and accounting law requires us to keep financial records. We keep them only as long
+          as the law requires, currently up to eight years, and use them only for accounts, tax and
+          resolving disputes.
+        </p>
+
+        <h2 data-i18n="del.again.title">Coming back</h2>
+        <p data-i18n="del.again.body">
+          Once deleted, an account cannot be restored. You can sign up again with the same phone number,
+          as a new account.
+        </p>
+      </div>
+    </main>
+
+    <footer class="foot">
+      <div class="wrap">
+        <p>© 2026 Dhunlive</p>
+        <ul>
+          <li><a href="/" data-i18n="foot.home">Home</a></li>
+          <li><a href="mailto:support@dhunlive.com">support@dhunlive.com</a></li>
+        </ul>
+      </div>
+    </footer>
+  </body>
+</html>
