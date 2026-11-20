@@ -268,6 +268,12 @@
       "key": "hostUserId",
       "value": "",
       "enabled": true
+    },
+    {
+      "key": "googleIdToken",
+      "value": "",
+      "type": "secret",
+      "enabled": true
     }
   ],
   "_postman_variable_scope": "environment"

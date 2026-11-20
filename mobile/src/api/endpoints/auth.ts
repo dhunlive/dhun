@@ -46,6 +46,16 @@ export const authApi = {
   verifyWidgetToken: (input: { accessToken: string; device: DevicePayload }) =>
     api.post<SessionResponse>('auth/otp/widget/verify', input),
 
+  /**
+   * Exchanges a Google ID token for a session.
+   *
+   * NOT anonymous, like verifyOtp: a guest sends their token so the server
+   * upgrades that account in place. The ID token proves nothing until the
+   * server has checked its signature and audience with Google's keys.
+   */
+  signInWithGoogle: (input: { idToken: string; device: DevicePayload }) =>
+    api.post<SessionResponse>('auth/social/google', input),
+
   refresh: (refreshToken: string) =>
     api.post<TokenPair>('auth/refresh', { refreshToken }, { anonymous: true, retries: 0 }),
 

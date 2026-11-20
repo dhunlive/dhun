@@ -149,6 +149,10 @@ export async function deleteAccount(input: {
       [input.userId],
     );
 
+    // A linked Google account is a way IN. A deleted account keeps none, and
+    // removing the link lets the same Google account sign up again afresh.
+    await client.query('DELETE FROM user_identities WHERE user_id = $1', [input.userId]);
+
     // Push tokens are personal data and a delivery channel. Both reasons to go.
     await client.query('DELETE FROM user_devices WHERE user_id = $1', [input.userId]);
 

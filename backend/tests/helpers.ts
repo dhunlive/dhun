@@ -87,6 +87,7 @@ export async function resetLedger(): Promise<void> {
     await c.query('TRUNCATE config_changes');
     await c.query('UPDATE app_config SET updated_by = NULL WHERE updated_by IS NOT NULL');
 
+    await c.query('DELETE FROM user_identities');
     await c.query('DELETE FROM user_profiles');
     await c.query('DELETE FROM users');
   });

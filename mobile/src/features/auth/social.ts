@@ -1,67 +1,110 @@
 // Social sign-in.
 //
-// ⚠️ MOCKED. There is no `/v1/auth/social` route yet — this file exists so the
-// login screen can be built and clicked through before the backend lands, and
-// so that swapping in the real exchange is ONE function, not a screen rewrite.
+// Google is live: the Google account picker runs ON DEVICE and returns an ID
+// token, which goes to POST /v1/auth/social/google. The server verifies it
+// against Google's keys and our client id before trusting a single field, and
+// returns the same SessionResponse the phone flow returns. A guest is upgraded
+// in place, which is why the call is not anonymous.
 //
-// To go live: implement `exchange()` against the backend, set MOCK to false,
-// and delete `mockExchange`. Nothing in the UI changes.
+// The Google button appears only when EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID is set
+// in the build — a button that can only fail is worse than no button.
 //
-// ── What the real thing will look like ────────────────────────────────────
-// Each SDK returns a provider token on device. That token goes to the backend,
-// which verifies it WITH THE PROVIDER (never trusting the client), then either
-// links it to an existing user or creates one, and returns the same
-// SessionResponse the OTP flow already returns. The client half stays this thin.
-//
-// ── Per-provider reality, worth knowing before building the backend ───────
-// · Google    — Credential Manager on Android, Sign in with Apple required on
-//               iOS if this ships there. Needs the Play/Firebase client ids,
-//               which need the Google Cloud project, which needs the entity.
-// · Facebook  — a Facebook app plus Business Verification. Weeks, not days.
-// · Instagram — Instagram Basic Display was SHUT DOWN in December 2024.
-//               Consumer "Log in with Instagram" no longer exists for third
-//               parties. What remains is Instagram API with Instagram Login,
-//               which covers PROFESSIONAL (business/creator) accounts only and
-//               runs through Facebook. For a host-facing app that is arguably
-//               fine; for ordinary viewers it will not work at all.
+// ── The other two, and why they are not here ──────────────────────────────
+// · Facebook  — needs a Facebook developer app (and Business Verification for
+//               anything beyond the default permissions). Add it as another
+//               provider here plus a verifier in backend social.service.ts.
+// · Instagram — Instagram Basic Display was SHUT DOWN in December 2024. There
+//               is no consumer "Log in with Instagram" any more; what remains
+//               covers business and creator accounts only, through Facebook.
+//               Ordinary viewers could never use the button.
 
+import { ApiError } from '@/api/client';
 import { authApi } from '@/api/endpoints/auth';
-import type { SessionResponse } from '@/api/types';
+import { ApiErrorCode, type SessionResponse } from '@/api/types';
+import { env } from '@/config/env';
 import { getDevicePayload } from '@/features/auth/device';
 
 export type SocialProvider = 'google' | 'facebook' | 'instagram';
 
-export const SOCIAL_PROVIDERS: SocialProvider[] = ['google', 'facebook', 'instagram'];
-
-/** Flip to false the moment `exchange()` is real. */
-export const MOCK = true;
+/** The providers that can actually sign someone in, in display order. */
+export const SOCIAL_PROVIDERS: SocialProvider[] = env.googleWebClientId ? ['google'] : [];
 
 /**
- * Signs in with a provider and returns a session.
- *
- * The mock creates a REAL guest session rather than fabricating tokens: fake
- * tokens would sail through this function and then 401 on every subsequent
- * call, which is a far more confusing thing to debug than a guest account.
+ * The person closed the Google account picker. Not a failure: the screen
+ * shows nothing and lets them pick another way in.
  */
-export async function signInWithProvider(provider: SocialProvider): Promise<SessionResponse> {
-  if (MOCK) return mockExchange(provider);
-  return exchange(provider);
-}
-
-/** The real implementation. Not built yet — see the header. */
-async function exchange(_provider: SocialProvider): Promise<SessionResponse> {
-  throw new Error('Social sign-in is not implemented yet');
-}
-
-async function mockExchange(provider: SocialProvider): Promise<SessionResponse> {
-  if (__DEV__) {
-    console.warn(
-      `[auth] MOCK social sign-in as "${provider}" — a guest session is being created instead. ` +
-        'See features/auth/social.ts.',
-    );
+export class SocialSignInCancelled extends Error {
+  constructor() {
+    super('cancelled');
+    this.name = 'SocialSignInCancelled';
   }
-  // A short, visible delay: without one the button never shows its loading
-  // state, and the spinner is a real part of the design being reviewed.
-  await new Promise((resolve) => setTimeout(resolve, 600));
-  return authApi.createGuest(await getDevicePayload());
+}
+
+export async function signInWithProvider(provider: SocialProvider): Promise<SessionResponse> {
+  if (provider !== 'google' || !env.googleWebClientId) {
+    throw new ApiError(ApiErrorCode.SOCIAL_LOGIN_UNAVAILABLE, 'unavailable', 0);
+  }
+  const idToken = await googleIdToken(env.googleWebClientId);
+  return authApi.signInWithGoogle({ idToken, device: await getDevicePayload() });
+}
+
+type GoogleSdk = typeof import('@react-native-google-signin/google-signin');
+
+let configured = false;
+
+async function googleIdToken(webClientId: string): Promise<string> {
+  // Loaded on first use: the native module only exists in a development or
+  // store build, and importing it eagerly would break Expo Go and the tests
+  // for every screen that imports this file.
+  // (The library calls TurboModuleRegistry.getEnforcing at load, which throws
+  // where the native module is absent — the same reason otpWidget.ts and
+  // livekit.ts require their SDKs lazily.)
+  let sdk: GoogleSdk;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    sdk = require('@react-native-google-signin/google-signin') as GoogleSdk;
+  } catch {
+    throw new ApiError(ApiErrorCode.SOCIAL_LOGIN_UNAVAILABLE, 'native module missing', 0);
+  }
+  const { GoogleSignin, isCancelledResponse, isErrorWithCode, statusCodes } = sdk;
+
+  if (!configured) {
+    // webClientId is what makes Google return an ID token at all, and it is
+    // the `aud` the server checks. No offline access: we want who they are,
+    // not a refresh token for their Google account.
+    GoogleSignin.configure({ webClientId, offlineAccess: false });
+    configured = true;
+  }
+
+  try {
+    await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+    const response = await GoogleSignin.signIn();
+    if (isCancelledResponse(response)) throw new SocialSignInCancelled();
+
+    const idToken = response.data.idToken;
+    if (!idToken) {
+      throw new ApiError(ApiErrorCode.GOOGLE_SIGN_IN_FAILED, 'no id token', 0);
+    }
+    return idToken;
+  } catch (error) {
+    if (error instanceof SocialSignInCancelled || error instanceof ApiError) throw error;
+    if (isErrorWithCode(error)) {
+      if (error.code === statusCodes.SIGN_IN_CANCELLED || error.code === statusCodes.IN_PROGRESS) {
+        throw new SocialSignInCancelled();
+      }
+      if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        throw new ApiError(ApiErrorCode.GOOGLE_PLAY_SERVICES, 'play services', 0);
+      }
+      // DEVELOPER_ERROR (code 10) lands here: the build's SHA-1 or package is
+      // not registered on the Android OAuth client. A setup problem, never the
+      // user's — logged so it shows up in development and Sentry.
+      console.warn(`[auth] Google sign-in failed with code ${error.code}`);
+    }
+    throw new ApiError(ApiErrorCode.GOOGLE_SIGN_IN_FAILED, 'google sign-in failed', 0);
+  } finally {
+    // Forget the Google session on this device straight away. The ID token has
+    // done its job; keeping it would make the next tap silently reuse the same
+    // Google account instead of offering the picker.
+    GoogleSignin.signOut().catch(() => undefined);
+  }
 }

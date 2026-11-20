@@ -77,6 +77,18 @@ export const hi: Messages = {
     withGoogle: 'Google से लॉग इन करें',
     withFacebook: 'Facebook से लॉग इन करें',
     withInstagram: 'Instagram से लॉग इन करें',
+    googleFailed:
+      'Google से लॉग इन नहीं हो सका। फिर से कोशिश करें, या अपने फ़ोन नंबर से लॉग इन करें।',
+    googleUnavailable:
+      'Google से लॉग इन अभी उपलब्ध नहीं है। अपने फ़ोन नंबर या ईमेल से लॉग इन करें।',
+    googleNoPlayServices:
+      'Google से लॉग इन के लिए इस फ़ोन पर Google Play services चाहिए। अपने फ़ोन नंबर से लॉग इन करें।',
+    googleEmailUnverified:
+      'आपके Google खाते में कोई पुष्टि किया हुआ ईमेल नहीं है। अपने फ़ोन नंबर से लॉग इन करें।',
+    googleEmailInUse:
+      'इस ईमेल से पहले से एक खाता है। ईमेल और पासवर्ड से लॉग इन करें, Account में जाकर ईमेल की पुष्टि करें, फिर Google से लॉग इन कर सकते हैं।',
+    accountSuspended: 'यह खाता अभी निलंबित है।',
+    accountUnavailable: 'यह खाता अब इस्तेमाल नहीं किया जा सकता।',
     moreMethods: 'लॉग इन के और तरीके',
     methodPhone: 'फ़ोन',
     methodGuest: 'देखें',

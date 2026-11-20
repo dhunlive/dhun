@@ -51,6 +51,13 @@ export const env = {
   /** `ws://host:3001`. The client appends `/ws`. */
   gatewayUrl: gatewayUrl.replace(/\/+$/, ''),
 
+  /**
+   * Google sign-in: the WEB OAuth client id (Google Cloud › Credentials). Not a
+   * secret — it is the audience Google writes into the ID token, and the server
+   * checks it against GOOGLE_OAUTH_CLIENT_IDS. Empty hides the Google button.
+   */
+  googleWebClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID?.trim() || undefined,
+
   /** Crash reporting. Empty is valid and means reporting is disabled. */
   sentryDsn: process.env.EXPO_PUBLIC_SENTRY_DSN?.trim() || undefined,
   environment: (process.env.EXPO_PUBLIC_ENV ?? 'development') as AppEnvironment,

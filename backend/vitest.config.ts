@@ -27,6 +27,9 @@ export default defineConfig({
       R2_SECRET_ACCESS_KEY: 'test-secret-key',
       R2_BUCKET: 'dhun-media-test',
       R2_PUBLIC_URL: 'https://media.test',
+      // The audience a test Google ID token is minted for. Google itself is
+      // replaced by a local key in oauth.test.ts; nothing leaves the machine.
+      GOOGLE_OAUTH_CLIENT_IDS: 'dhun-test-web.apps.googleusercontent.com',
     },
     globalSetup: ['./tests/globalSetup.ts'],
     // These tests share one database and assert on global state, so files must

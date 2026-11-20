@@ -16,8 +16,8 @@ import { isEnabled } from '@/config/flags';
 import { getDevicePayload } from '@/features/auth/device';
 import { adoptSession } from '@/features/auth/session';
 import {
-  MOCK,
   SOCIAL_PROVIDERS,
+  SocialSignInCancelled,
   signInWithProvider,
   type SocialProvider,
 } from '@/features/auth/social';
@@ -57,7 +57,10 @@ export default function LoginScreen() {
       await adoptSession(session);
       router.replace(session.user.profileComplete ? '/(app)/(tabs)' : '/(app)/profile-setup');
     },
-    onError: () => haptic.error(),
+    // Closing the Google picker is a choice, not a failure: no buzz, no banner.
+    onError: (error) => {
+      if (!(error instanceof SocialSignInCancelled)) haptic.error();
+    },
   });
 
   const guest = useMutation({
@@ -106,7 +109,8 @@ export default function LoginScreen() {
   }
 
   const busy = social.isPending || guest.isPending;
-  const failure = social.error ?? guest.error;
+  const socialFailure = social.error instanceof SocialSignInCancelled ? null : social.error;
+  const failure = socialFailure ?? guest.error;
 
   return (
     <Screen padded={false} edges={['top', 'bottom']}>
@@ -136,7 +140,7 @@ export default function LoginScreen() {
         <View style={styles.spacer} />
 
         <Animated.View entering={FadeInDown.duration(360)} style={styles.panel}>
-          {isEnabled('socialLoginEnabled') && (
+          {isEnabled('socialLoginEnabled') && SOCIAL_PROVIDERS.length > 0 && (
             <Column gap="md">
               {SOCIAL_PROVIDERS.map((provider) => {
                 const ui = PROVIDER_UI[provider];
@@ -193,10 +197,6 @@ export default function LoginScreen() {
               detail={failure != null ? traceReference(failure) : undefined}
               tone={failure != null ? 'danger' : 'info'}
             />
-          )}
-
-          {MOCK && __DEV__ && (
-            <Banner tone="warning" message="Social sign-in is mocked — creates a guest session." />
           )}
 
           <Animated.View style={[styles.consent, nudgeStyle]}>

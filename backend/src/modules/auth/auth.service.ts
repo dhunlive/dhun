@@ -96,9 +96,9 @@ export async function verifyPhoneAndSignIn(input: {
  * included — the row is "this user, this device, this method", which is what
  * a takeover investigation needs and all a browser session should see.
  */
-function recordSignIn(
+export function recordSignIn(
   result: { user: SessionUser; isNewUser: boolean },
-  method: 'otp' | 'widget',
+  method: 'otp' | 'widget' | 'google',
   device: DeviceInfo,
 ): void {
   recordEvent({
@@ -218,7 +218,8 @@ export async function signInWithWidgetToken(input: {
   return result;
 }
 
-async function loadSessionUser(client: PoolClient, userId: string): Promise<SessionUser> {
+/** Module-internal (not in index.ts): social.service.ts builds the same SessionUser. */
+export async function loadSessionUser(client: PoolClient, userId: string): Promise<SessionUser> {
   const { rows } = await client.query<{
     id: string;
     status: string;

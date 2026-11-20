@@ -85,6 +85,17 @@ export const en = {
     withGoogle: 'Log in with Google',
     withFacebook: 'Log in with Facebook',
     withInstagram: 'Log in with Instagram',
+    // Google sign-in failures, each with the way forward.
+    googleFailed: 'Google sign-in did not work. Try again, or use your phone number.',
+    googleUnavailable: 'Google sign-in is not available right now. Use your phone number or email.',
+    googleNoPlayServices:
+      'Google sign-in needs Google Play services on this phone. Use your phone number instead.',
+    googleEmailUnverified:
+      'Your Google account has no confirmed email address. Use your phone number instead.',
+    googleEmailInUse:
+      'An account already uses this email. Sign in with your email and password, confirm the email from Account, then you can use Google.',
+    accountSuspended: 'This account is suspended for now.',
+    accountUnavailable: 'This account can no longer be used.',
     moreMethods: 'More login methods',
     methodPhone: 'Phone',
     methodGuest: 'Browse',

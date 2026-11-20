@@ -537,16 +537,16 @@ walk away from a vendor and an SDK spread across four modules cannot walk anywhe
 One repo, pushed to `git@github.com:Sumit240803/dhun.git` (`main`).
 Verify everything with **`npm run check`** from the root.
 
-### `backend/` — M1, M2 (bar OAuth) and M4 complete; M5–M7, M10, M12–M21 built, unverified on devices. 669 tests.
+### `backend/` — M1, M2 (bar Facebook sign-in) and M4 complete; M5–M7, M10, M12–M21 built, unverified on devices. 684 tests.
 
-Forty migrations, 68 routes, and all three processes built: API, workers, and the
+Forty-one migrations, 68 routes, and all three processes built: API, workers, and the
 realtime gateway. **M10 was built before M8 and M9, by agreement** — both are blocked on
 external accounts (CA + RazorpayX, Hive) and neither is skipped.
 
 | Area | State |
 |---|---|
 | **Ledger** | Done and proven. Unbalanced transactions cannot commit (deferred constraint trigger), entries cannot be mutated (trigger + revoked grants in `ops/roles.sql`), balances cannot go negative. 20 parallel gifts against a 16-gift balance land exactly 16. |
-| **Auth** | Complete except OAuth. Phone OTP behind a provider interface (`console` in dev, `msg91` blocked on DLT) plus the MSG91 **widget** path, email + password, deferred email confirmation, password reset and change, session list and per-device revocation, phone-number change, account deletion. JWT + rotating refresh with replay detection that revokes the device chain, scoped `role_assignments`. |
+| **Auth** | Complete except Facebook. **Google sign-in** (041): the ID token is verified against Google's keys and our web client id, identities keyed by `sub`, an unconfirmed same-email account is refused rather than linked (pre-hijacking) — setup in `docs/google-sign-in.md`. Phone OTP behind a provider interface (`console` in dev, `msg91` blocked on DLT) plus the MSG91 **widget** path, email + password, deferred email confirmation, password reset and change, session list and per-device revocation, phone-number change, account deletion. JWT + rotating refresh with replay detection that revokes the device chain, scoped `role_assignments`. |
 | **Wallet / purchases** | Server-driven catalogs, IAP behind a verifier interface (stub in dev), Razorpay signature verification fully implemented, coins→gems conversion. |
 | **Social / chat / moderation** | Follows, profile visits, public profiles, profile summary, message threads, reports and blocks. Bans are enforced on every request, not only at sign-in, and guests are bannable. |
 | **Rooms / RTC** | Go live (4–20 seats, host's choice), join, mic seats, host mute and kick, **room admins** (035: per room, up to five, may mute and kick anyone but the host and each other, list dies with the room), **reactions** (six glyphs relayed over the gateway, never stored, eight a second per socket), the **share page** at `/r/{code}` served by the API, end. A **backdrop** is picked at random from `app_config.room_backgrounds` and STORED on the room, so everyone in it sees one place and new art never reshuffles a live room. Publish rights come from the SEAT TABLE and nowhere else — there is no way to request them. LiveKit webhooks feed viewer counts and `room_sessions` (host hours). Seats, bans and sessions are in Postgres; presence is not mirrored, because it would drift from the media server within seconds. |
@@ -651,7 +651,7 @@ This Next.js version has breaking changes; `site/AGENTS.md` says where its docs 
 ### `mobile/` — 35 routes, 31 of them built (the four legal pages wait for a lawyer's text).
 
 Expo SDK 57 · React Native 0.86 · React 19.2 · expo-router. EAS project
-`@sumitsumit/dhun` (`c7c547aa-86e2-4d02-befa-b5e643fde400`). 193 tests.
+`@sumitsumit/dhun` (`c7c547aa-86e2-4d02-befa-b5e643fde400`). 200 tests.
 
 Read **`mobile/ARCHITECTURE.md`** before adding a file. The essentials:
 
@@ -824,7 +824,7 @@ roles re-read from the database on every request, and a CSRF token in every form
 ### Not built yet
 
 **Phase 0 and Phase 1 of the blueprint are complete except where a decision is open**
-(build-plan M19, M20). Still to build: OAuth (Google / Facebook / Instagram) · withdrawal
+(build-plan M19, M20). Still to build: Facebook sign-in (Google is built; Instagram consumer login no longer exists) · withdrawal
 and the rest of host payouts (M8) · Hive moderation and the rest of trust & safety (M9;
 reports queue and appeals are done) · platform rankings (waiting on a decision) · the
 decision-bound Phase 1 items (quiz, karaoke, voice effects, weekly events — build-plan

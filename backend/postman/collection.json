@@ -815,6 +815,59 @@
           ]
         },
         {
+          "name": "12b · Google sign-in",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Trace-Id",
+                "value": "{{traceId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idToken\": \"{{googleIdToken}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"platform\": \"android\",\n    \"appVersion\": \"1.0.0\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/auth/social/google",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiVersion}}",
+                "auth",
+                "social",
+                "google"
+              ]
+            },
+            "description": "Exchanges a Google ID token for a session.\n\nThe app runs the Google account picker on device and sends the ID token it returns. The server verifies it against Google's published keys (RS256 only), checks iss is Google, aud is one of GOOGLE_OAUTH_CLIENT_IDS (the WEB client id), it is unexpired, and email_verified is true.\n\nAccount rules: an already-linked Google account (by `sub`, never email) signs in; an account holding the same CONFIRMED email is linked; the same email UNCONFIRMED is refused with EMAIL_IN_USE (pre-hijacking defence); a guest sending its Authorization header is upgraded in place; otherwise a new account is created with the email confirmed. Profile setup (name, 18+ date of birth) still follows.\n\nErrors: 401 SOCIAL_TOKEN_INVALID · 422 SOCIAL_EMAIL_UNVERIFIED · 409 EMAIL_IN_USE · 403 ACCOUNT_BANNED / ACCOUNT_SUSPENDED · 503 SOCIAL_LOGIN_UNAVAILABLE (server not configured) / SOCIAL_PROVIDER_UNAVAILABLE (Google keys unreachable) · 422 VALIDATION_FAILED.\n\nTo try it: get an ID token from the OAuth Playground with the web client id, or log one from a dev build, and put it in {{googleIdToken}}."
+          }
+        },
+        {
           "name": "13 · Forgot password (start reset)",
           "request": {
             "method": "POST",

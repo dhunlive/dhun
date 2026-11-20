@@ -101,8 +101,11 @@ authenticated and would otherwise be locked out of the screen that upgrades them
   which also gave `otp_challenges` a `purpose`).
 
 **Still outstanding for M2 to close:**
-- **OAuth** — Google, Facebook, Instagram. The buttons exist on the sign-in screen and
-  are the only auth surface with nothing behind them.
+- **OAuth** — **Google built 2026-11-20** (migration 041, `POST /v1/auth/social/google`,
+  the app's Google button); live once the OAuth clients exist (`docs/google-sign-in.md`).
+  **Facebook** waits on a Facebook developer app. **Instagram** consumer login no longer
+  exists (Basic Display shut down December 2024): its button is hidden, and dropping it from
+  the plan is the founder's call.
 - MSG91 delivery is still blocked on Track 0 DLT registration. `devCode` carries the flow
   until then, and the OTP screen surfaces it in development builds. The widget's
   `/verifyAccessToken` leaf is unconfirmed — it fails CLOSED, so a wrong shape means

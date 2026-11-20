@@ -25,6 +25,7 @@ import {
 import { MAX_PASSWORD_LENGTH } from './password.js';
 import { requestOtp } from './otp.service.js';
 import { confirmPhoneChange, requestPhoneChange } from './phone.service.js';
+import { signInWithGoogle } from './social.service.js';
 import { revokeRefreshTokens, rotateRefreshToken } from './tokens.js';
 
 const deviceSchema = z.object({
@@ -199,6 +200,44 @@ export function buildAuthRouter(): Router {
     async (req, res, next) => {
       try {
         res.json(await confirmEmail(req.userId!, req.body.code));
+      } catch (err) {
+        next(err);
+      }
+    },
+  );
+
+  // Google sign-in. The app signs in with Google on device and sends the ID
+  // token; social.service.ts verifies it against Google's keys and OUR client
+  // ids before anything is trusted. A guest is upgraded in place.
+  //
+  // Rate-limited on failures: a forged token costs us a signature check, and
+  // an unknown key id can make us refetch Google's keys.
+  router.post(
+    '/social/google',
+    rateLimit({
+      scope: 'social:google:ip',
+      limit: 30,
+      windowMs: 900_000,
+      by: 'ip',
+      failuresOnly: true,
+    }),
+    optionalAuth(),
+    validate(
+      z.object({
+        // A Google ID token is ~1 KB; anything far larger is not one.
+        idToken: z.string().min(20).max(4096),
+        device: deviceSchema,
+      }),
+    ),
+    async (req, res, next) => {
+      try {
+        res.json(
+          await signInWithGoogle({
+            idToken: req.body.idToken,
+            device: req.body.device,
+            guestUserId: req.userStatus === 'guest' ? req.userId : undefined,
+          }),
+        );
       } catch (err) {
         next(err);
       }

@@ -55,6 +55,11 @@ const schema = z.object({
   MSG91_AUTH_KEY: z.string().optional(),
   MSG91_SENDER_ID: z.string().optional(),
   MSG91_TEMPLATE_ID: z.string().optional(),
+  // Google sign-in: the OAuth client ids an ID token may be issued TO (its
+  // `aud`), comma-separated. The app's WEB client id — the one the app passes
+  // as webClientId — is what Google puts there, on Android and iOS alike.
+  // Unset means Google sign-in answers 503: never "accept any audience".
+  GOOGLE_OAUTH_CLIENT_IDS: blankIsUnset(z.string()),
 
   // stub = accept a well-formed token without calling the store (dev/test only).
   // google_play = the real Play Developer API, needs a service account.
@@ -177,6 +182,13 @@ export const config = {
     ttlMinutes: env.OTP_TTL_MINUTES,
     maxAttempts: env.OTP_MAX_ATTEMPTS,
     perPhonePerHour: env.OTP_PER_PHONE_PER_HOUR,
+  },
+
+  oauth: {
+    googleClientIds: (env.GOOGLE_OAUTH_CLIENT_IDS ?? '')
+      .split(',')
+      .map((id) => id.trim())
+      .filter((id) => id.length > 0),
   },
 
   msg91: {
