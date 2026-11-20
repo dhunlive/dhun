@@ -18,8 +18,14 @@ Project: **`dhun-514018`** (the Firebase project; Google Cloud and Firebase shar
    (`420866654846-6tmnfsn48lgl5daa2mnhm5o27qkl35kd.apps.googleusercontent.com`). The file goes
    to EAS as the `GOOGLE_SERVICES_JSON` file variable in all three environments.
 
-A new signing key later (Play App Signing) needs only step 1 again with its SHA-1, then a
-fresh `google-services.json` uploaded to EAS.
+A new signing key later needs only step 1 again with its SHA-1, then a fresh
+`google-services.json` uploaded to EAS.
+
+**Play App Signing — done 2026-11-20.** Store installs are re-signed by Google, so they carry
+a different certificate: SHA-1 `F6:1B:8C:E8:…:2F:33` (SHA-256 `E6:17:37:B2:…:D4:8E`), read
+from a Play-generated APK (`generatedApks` API → download → `apksigner verify
+--print-certs`). Both are on the Firebase app, and Firebase created a second Android client
+for them, so Google sign-in works in EAS builds and Play installs alike.
 
 ## How it fits together
 
