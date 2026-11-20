@@ -1,0 +1,99 @@
+# The cheapest way to run the whole backend: ONE droplet, everything in Docker.
+# Postgres, Valkey (Redis), the API, the realtime gateway, the workers, and
+# Caddy in front for HTTPS. LiveKit is NOT here: rooms use LiveKit Cloud.
+#
+# For development and testers only (infra/dev/README.md). Production is the
+# Terraform in infra/envs/, with managed Postgres and real backups.
+
+x-backend: &backend
+  image: dhun-backend:dev
+  pull_policy: never
+  env_file: dev.env
+  restart: unless-stopped
+  depends_on:
+    migrate:
+      condition: service_completed_successfully
+    valkey:
+      condition: service_healthy
+  logging: &logging
+    driver: json-file
+    options: { max-size: '10m', max-file: '3' }
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: dhun
+      POSTGRES_DB: dhun
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?set APP_DB_PASSWORD in .env}
+    # Sized for a 2 GB droplet shared with everything else.
+    command: >
+      postgres -c max_connections=60 -c shared_buffers=128MB
+               -c effective_cache_size=384MB -c work_mem=4MB
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U dhun -d dhun']
+      interval: 5s
+      retries: 20
+    logging: *logging
+
+  valkey:
+    image: valkey/valkey:8-alpine
+    restart: unless-stopped
+    command: ['valkey-server', '--maxmemory', '64mb', '--maxmemory-policy', 'allkeys-lru', '--save', '']
+    healthcheck:
+      test: ['CMD', 'valkey-cli', 'ping']
+      interval: 5s
+      retries: 20
+    logging: *logging
+
+  # Runs the migrations as the owner, applies ops/roles.sql (so the app runs as
+  # dhun_app, without UPDATE on the ledger), then exits. Every start re-runs it;
+  # an already-applied migration is skipped.
+  migrate:
+    image: dhun-backend:dev
+    build: ../../backend
+    env_file: dev.env
+    command: ['migrate']
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: 'no'
+    logging: *logging
+
+  api:
+    <<: *backend
+    command: ['api']
+
+  gateway:
+    <<: *backend
+    command: ['gateway']
+
+  worker:
+    <<: *backend
+    command: ['worker']
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      API_HOST: ${API_HOST:?set API_HOST in .env}
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [api, gateway]
+    logging: *logging
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

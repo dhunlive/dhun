@@ -1,0 +1,15 @@
+# One hostname for everything, one certificate (Let's Encrypt, automatic):
+#   https://{API_HOST}/v1/...   the API
+#   https://{API_HOST}/admin    the admin panel (same process as the API)
+#   wss://{API_HOST}/ws         the realtime gateway
+{$API_HOST} {
+	encode zstd gzip
+
+	handle /ws* {
+		reverse_proxy gateway:3001
+	}
+
+	handle {
+		reverse_proxy api:3000
+	}
+}

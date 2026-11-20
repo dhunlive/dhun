@@ -140,6 +140,21 @@ jobs:
           docker run --rm dhun-backend:ci nonsense || code=$?
           if [ "$code" -ne 64 ]; then echo "::error::unknown command should exit 64, got $code"; exit 1; fi
           docker run --rm --entrypoint sh dhun-backend:ci -c 'test -f build/src/server.js && test -f build/src/gateway/index.js && test -f build/src/workers/index.js && test -f build/scripts/migrate.js && test -d build/migrations && test -d build/public && test -f build/ops/roles.sql && command -v psql'
+      # The deploy's own first step, run for real: every migration as the owner,
+      # then ops/roles.sql. Checking the file exists was not enough — a psql
+      # variable inside a DO block broke the grants and nothing noticed until a
+      # server was brought up.
+      - name: Migrations and grants apply to an empty database
+        run: |
+          docker network create ci
+          docker run -d --name pg --network ci -e POSTGRES_USER=dhun -e POSTGRES_PASSWORD=ci -e POSTGRES_DB=dhun postgres:16-alpine
+          for i in $(seq 1 30); do docker exec pg pg_isready -U dhun -d dhun && break; sleep 1; done
+          url=postgres://dhun:ci@pg:5432/dhun
+          docker run --rm --network ci -e DATABASE_URL="$url" -e MIGRATION_DATABASE_URL="$url" dhun-backend:ci migrate
+          # Run twice: a second deploy must be a no-op, not an error.
+          docker run --rm --network ci -e DATABASE_URL="$url" -e MIGRATION_DATABASE_URL="$url" dhun-backend:ci migrate
+          docker exec pg psql -U dhun -d dhun -tAc "SELECT has_table_privilege('dhun_app', 'ledger_entries', 'UPDATE')" | grep -qx f \
+            || { echo "::error::dhun_app can UPDATE ledger_entries"; exit 1; }
 
   infra:
     name: Terraform

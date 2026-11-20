@@ -21,13 +21,12 @@
 -- ---------------------------------------------------------------------------
 -- 1. The application role. Owns no objects and can create none.
 -- ---------------------------------------------------------------------------
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = :'app_role') THEN
-    EXECUTE format('CREATE ROLE %I LOGIN', :'app_role');
-  END IF;
-END
-$$;
+-- \gexec, not a DO block: psql never substitutes :'app_role' inside a $$ body,
+-- so the DO version failed with a syntax error on every run (found bringing
+-- up infra/dev). The SELECT builds the statement and \gexec runs it, and only
+-- when the role does not exist yet.
+SELECT format('CREATE ROLE %I LOGIN', :'app_role')
+ WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = :'app_role') \gexec
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
 GRANT USAGE ON SCHEMA public TO :"app_role";
