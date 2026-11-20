@@ -133,3 +133,7 @@ Errors also appear in the admin panel under **Events**.
 The whole stack was brought up locally from these files (2026-11-20): migrations and
 grants applied, `/ready` up, a phone sign-in through Caddy, the admin login page, the
 WebSocket upgrade on `/ws`, and `dhun_app` refused `UPDATE` on `ledger_entries`.
+
+Deployed to the droplet the same day with self-hosted LiveKit: a `lk load-test` from
+outside (2 audio publishers, 1 video, 2 subscribers, 25 s) received every track with 0%
+packet loss, and all 15 webhooks reached the API with a 200.
