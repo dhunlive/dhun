@@ -6,6 +6,21 @@ settings that carry one of them. Nothing here is a secret: client ids are public
 
 Project: **`dhun-514018`** (the Firebase project; Google Cloud and Firebase share it).
 
+**Done 2026-11-20.** The quick route, which replaces steps 1–3 below:
+
+1. `firebase apps:android:sha:create <app id> <SHA-1>` — the EAS keystore's SHA-1
+   (`97:F6:8E:…:A9:C1`), read from expo.dev › Credentials.
+2. Firebase console › Authentication › Sign-in method › **Google › Enable** (console only;
+   there is no public API for it). That one save creates the consent screen, the **web
+   client** and an **Android client** for every SHA-1 already on the app.
+3. `firebase apps:sdkconfig ANDROID <app id>` → the new `google-services.json`; its
+   `client_type: 3` entry is the web client id
+   (`420866654846-6tmnfsn48lgl5daa2mnhm5o27qkl35kd.apps.googleusercontent.com`). The file goes
+   to EAS as the `GOOGLE_SERVICES_JSON` file variable in all three environments.
+
+A new signing key later (Play App Signing) needs only step 1 again with its SHA-1, then a
+fresh `google-services.json` uploaded to EAS.
+
 ## How it fits together
 
 ```

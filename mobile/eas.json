@@ -18,7 +18,8 @@
       "env": {
         "EXPO_PUBLIC_ENV": "development",
         "EXPO_PUBLIC_API_URL": "http://192.168.1.6:3000",
-        "EXPO_PUBLIC_SENTRY_DSN": "https://0b51d627f0324a2e805f414261f99fee@o4512396487819264.ingest.de.sentry.io/4512396556238928"
+        "EXPO_PUBLIC_SENTRY_DSN": "https://0b51d627f0324a2e805f414261f99fee@o4512396487819264.ingest.de.sentry.io/4512396556238928",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "420866654846-6tmnfsn48lgl5daa2mnhm5o27qkl35kd.apps.googleusercontent.com"
       }
     },
     "preview": {
@@ -32,7 +33,8 @@
         "EXPO_PUBLIC_ENV": "staging",
         "EXPO_PUBLIC_API_URL": "https://api-staging.dhun.live",
         "EXPO_PUBLIC_GATEWAY_URL": "wss://gateway-staging.dhun.live",
-        "EXPO_PUBLIC_SENTRY_DSN": "https://0b51d627f0324a2e805f414261f99fee@o4512396487819264.ingest.de.sentry.io/4512396556238928"
+        "EXPO_PUBLIC_SENTRY_DSN": "https://0b51d627f0324a2e805f414261f99fee@o4512396487819264.ingest.de.sentry.io/4512396556238928",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "420866654846-6tmnfsn48lgl5daa2mnhm5o27qkl35kd.apps.googleusercontent.com"
       }
     },
     "production": {
@@ -46,7 +48,8 @@
         "EXPO_PUBLIC_ENV": "production",
         "EXPO_PUBLIC_API_URL": "https://api.dhun.live",
         "EXPO_PUBLIC_GATEWAY_URL": "wss://gateway.dhun.live",
-        "EXPO_PUBLIC_SENTRY_DSN": "https://0b51d627f0324a2e805f414261f99fee@o4512396487819264.ingest.de.sentry.io/4512396556238928"
+        "EXPO_PUBLIC_SENTRY_DSN": "https://0b51d627f0324a2e805f414261f99fee@o4512396487819264.ingest.de.sentry.io/4512396556238928",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "420866654846-6tmnfsn48lgl5daa2mnhm5o27qkl35kd.apps.googleusercontent.com"
       }
     }
   },
