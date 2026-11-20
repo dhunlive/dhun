@@ -27,6 +27,7 @@ import { errorMessage, traceReference } from '@/lib/errors';
 import { haptic } from '@/lib/haptics';
 import { colors, radius, spacing } from '@/theme';
 import { Banner, Checkbox, Column, ProviderButton, Row, Screen, Text } from '@/ui';
+import { BrandMark } from '@/visuals/BrandMark';
 import { Collage } from '@/visuals/Collage';
 
 type IconName = keyof typeof Ionicons.glyphMap;
@@ -112,9 +113,12 @@ export default function LoginScreen() {
       <Collage />
 
       <View style={styles.help}>
-        <Text variant="title" tone="brand" style={styles.wordmark}>
-          {t('app.name')}
-        </Text>
+        <Row gap="sm" style={styles.brand}>
+          <BrandMark size={32} />
+          <Text variant="title" tone="brand" style={styles.wordmark}>
+            {t('app.name')}
+          </Text>
+        </Row>
         <Link href="/legal/grievance" asChild>
           <Pressable accessibilityRole="button" hitSlop={spacing.sm}>
             <Text variant="caption" tone="secondary">
@@ -303,6 +307,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.sm,
   },
+  brand: { alignItems: 'center' },
   wordmark: { letterSpacing: -0.5 },
   scroll: { flexGrow: 1 },
   // Pushes the panel to the bottom on a tall screen while still allowing scroll
