@@ -1,17 +1,21 @@
 # infra/dev — the whole backend on one small droplet
 
 The cheapest way to run Dhun's backend for development and testers: **one DigitalOcean
-droplet, about $12 a month**, running everything in Docker:
+droplet, about $12 a month**, running everything in Docker, LiveKit included:
 
 ```
 Caddy (HTTPS, automatic certificate)
  ├─ https://api-dev.dhunlive.com/v1/…   → api      (REST API)
  ├─ https://api-dev.dhunlive.com/admin  → api      (admin panel)
- └─ wss://api-dev.dhunlive.com/ws       → gateway  (realtime)
+ ├─ wss://api-dev.dhunlive.com/ws       → gateway  (realtime)
+ └─ wss://livekit-dev.dhunlive.com      → livekit  (room signalling)
+livekit media: 7881/tcp, 7882/udp, straight to the droplet
 worker · Postgres 16 · Valkey (Redis)
 ```
 
-LiveKit is **not** on the droplet: rooms use a free **LiveKit Cloud** project.
+LiveKit is **self-hosted** here: no minute cap, and it rehearses the production plan
+(self-hosted LiveKit, CLAUDE.md decision #5). One vCPU is enough for voice rooms with a
+few testers; video rooms with several people publishing want the $24 size.
 
 **This is not production.** The database lives on the droplet's disk with no managed
 backups or failover. `NODE_ENV=staging` returns the sign-in code in the API response
@@ -34,12 +38,14 @@ If the $12 size feels slow with real testers, resize to **2 vCPU / 4 GB ($24)** 
 dashboard; nothing else changes.
 
 Then **Networking › Firewalls › Create**, attach it to the droplet:
-inbound **TCP 22**, **TCP 80**, **TCP 443**, **UDP 443**. Nothing else.
+inbound **TCP 22**, **TCP 80**, **TCP 443**, **UDP 443**, and LiveKit's media ports
+**TCP 7881** and **UDP 7882**. Nothing else; 7880 (LiveKit signalling) stays closed and is
+reached through Caddy. Leaving out 80/443 takes the whole API down.
 
 ## 2 · Point the name at it
 
-Cloudflare › dhunlive.com › **DNS › Add record**: **A**, name `api-dev`, the droplet's IP,
-**Proxy status: DNS only** (grey cloud). Caddy gets its own certificate and needs the
+Cloudflare › dhunlive.com › **DNS › Add record**: two **A** records, `api-dev` and
+`livekit-dev`, both the droplet's IP, **Proxy status: DNS only** (grey cloud). Caddy gets its own certificate and needs the
 traffic to reach it directly.
 
 ## 3 · Prepare the droplet
@@ -62,19 +68,21 @@ cd /opt/dhun/infra/dev
 ## 4 · Fill in the two env files
 
 ```bash
-cp .env.example .env          # API_HOST and the two database passwords
+cp .env.example .env          # hostnames, database passwords, LiveKit keys
 cp dev.env.example dev.env    # the backend's environment
-openssl rand -hex 24          # run three times: two DB passwords, then…
-openssl rand -hex 32          # …and this one for JWT_SECRET
+openssl rand -hex 24          # twice: the two DB passwords
+openssl rand -hex 32          # twice: JWT_SECRET and LIVEKIT_API_SECRET
+echo "API$(openssl rand -hex 6)" # LIVEKIT_API_KEY
 nano .env
 nano dev.env
 ```
 
 In `dev.env`, replace every `FILL`:
 - the two passwords inside `DATABASE_URL` and `MIGRATION_DATABASE_URL`, matching `.env`;
-- `JWT_SECRET`;
-- `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET` from LiveKit Cloud › your
-  project › **Settings › Keys**.
+- `JWT_SECRET`.
+
+LiveKit's keys go in `.env` only: compose hands the same values to LiveKit and to the
+backend, so they cannot drift apart.
 
 Both files are git-ignored; they never leave the droplet.
 
@@ -93,9 +101,9 @@ ledger entries** at the database level.
 
 ## 6 · Connect the rest
 
-- **LiveKit Cloud** › project › **Settings › Webhooks** › add
-  `https://api-dev.dhunlive.com/v1/webhooks/livekit` with the same API key. Viewer counts
-  and host hours come from these webhooks.
+- **LiveKit webhooks** are already configured: the server posts to
+  `https://{API_HOST}/v1/webhooks/livekit`, signed with the same key. Viewer counts and host
+  hours come from them.
 - **The app**: in `mobile/.env`, or a new `eas.json` profile for this server:
   ```
   EXPO_PUBLIC_API_URL=https://api-dev.dhunlive.com
@@ -112,7 +120,7 @@ ledger entries** at the database level.
 | Task | Command (in `/opt/dhun/infra/dev`) |
 |---|---|
 | Update to the latest code | `git pull && docker compose up -d --build` |
-| Logs | `docker compose logs -f api` (or `gateway`, `worker`) |
+| Logs | `docker compose logs -f api` (or `gateway`, `worker`, `livekit`) |
 | Restart one process | `docker compose restart api` |
 | Database shell | `docker compose exec postgres psql -U dhun dhun` |
 | Back up the database | `docker compose exec -T postgres pg_dump -U dhun dhun \| gzip > dhun-$(date +%F).sql.gz` |

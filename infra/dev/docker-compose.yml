@@ -1,6 +1,6 @@
 # The cheapest way to run the whole backend: ONE droplet, everything in Docker.
-# Postgres, Valkey (Redis), the API, the realtime gateway, the workers, and
-# Caddy in front for HTTPS. LiveKit is NOT here: rooms use LiveKit Cloud.
+# Postgres, Valkey (Redis), the API, the realtime gateway, the workers,
+# LiveKit (rooms' audio and video), and Caddy in front for HTTPS.
 #
 # For development and testers only (infra/dev/README.md). Production is the
 # Terraform in infra/envs/, with managed Postgres and real backups.
@@ -9,6 +9,12 @@ x-backend: &backend
   image: dhun-backend:dev
   pull_policy: never
   env_file: dev.env
+  # LiveKit's address and keys come from .env, the one place the livekit
+  # service also reads them, so the two can never disagree.
+  environment:
+    LIVEKIT_URL: wss://${LIVEKIT_HOST:?set LIVEKIT_HOST in .env}
+    LIVEKIT_API_KEY: ${LIVEKIT_API_KEY:?set LIVEKIT_API_KEY in .env}
+    LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET:?set LIVEKIT_API_SECRET in .env}
   restart: unless-stopped
   depends_on:
     migrate:
@@ -77,11 +83,44 @@ services:
     <<: *backend
     command: ['worker']
 
+  # The media server. HOST networking, because WebRTC hands clients the
+  # server's own address and Docker's NAT would hand them a private one.
+  #   7880/tcp  signalling: NOT open in the firewall, reached only through
+  #             Caddy as wss://{LIVEKIT_HOST}
+  #   7881/tcp  media over TCP, the fallback for networks that block UDP
+  #   7882/udp  ALL media on one port (muxed), instead of a 10,000-port range
+  # Single node, so no Redis. Webhooks go to the API by its public name: from
+  # the host network the compose service names do not resolve.
+  livekit:
+    image: livekit/livekit-server:v1.13.11
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      LIVEKIT_CONFIG: |
+        port: 7880
+        rtc:
+          tcp_port: 7881
+          udp_port: 7882
+          use_external_ip: true
+        keys:
+          ${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}
+        webhook:
+          api_key: ${LIVEKIT_API_KEY}
+          urls:
+            - https://${API_HOST}/v1/webhooks/livekit
+        logging:
+          level: info
+    logging: *logging
+
   caddy:
     image: caddy:2-alpine
     restart: unless-stopped
     environment:
       API_HOST: ${API_HOST:?set API_HOST in .env}
+      LIVEKIT_HOST: ${LIVEKIT_HOST:?set LIVEKIT_HOST in .env}
+    # LiveKit is on the host network; this name reaches it from Caddy's.
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     ports:
       - '80:80'
       - '443:443'

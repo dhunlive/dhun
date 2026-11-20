@@ -1,7 +1,8 @@
-# One hostname for everything, one certificate (Let's Encrypt, automatic):
+# Two hostnames, a certificate each (Let's Encrypt, automatic):
 #   https://{API_HOST}/v1/...   the API
 #   https://{API_HOST}/admin    the admin panel (same process as the API)
 #   wss://{API_HOST}/ws         the realtime gateway
+#   wss://{LIVEKIT_HOST}        LiveKit signalling (media goes direct, 7881/7882)
 {$API_HOST} {
 	encode zstd gzip
 
@@ -12,4 +13,8 @@
 	handle {
 		reverse_proxy api:3000
 	}
+}
+
+{$LIVEKIT_HOST} {
+	reverse_proxy host.docker.internal:7880
 }
