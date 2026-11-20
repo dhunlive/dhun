@@ -6,6 +6,8 @@
 # The .example files are committed; the real ones never are.
 .env
 .env.*
+# Any *.env file, e.g. a token file saved at the repo root by mistake.
+*.env
 !.env.example
 *.pem
 *.key

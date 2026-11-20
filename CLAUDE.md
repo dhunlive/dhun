@@ -637,7 +637,7 @@ walkthrough, the costs, and what notices each failure are there.
 - **Open (ledger-decisions § F6):** one host's balance row serialises gifts to that host —
   clean at 40 gifts/s on a laptop, queueing at 70. Re-measure on staging, then decide.
 
-### `site/` — dhunlive.com, built, not deployed
+### `site/` — dhunlive.com, live on Vercel
 
 Next.js (App Router), every route prerendered static, for Vercel with `site` as the root
 directory. English at `/`, Hindi at `/hi`, and the account deletion page Google Play

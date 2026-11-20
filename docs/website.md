@@ -53,6 +53,15 @@ These are on the page as placeholders and must be real before launch:
 
 ## Deploy: Vercel
 
+**Live since 2026-11-20.** Vercel project `dhun`, root `site`. DNS on Cloudflare, all
+**DNS only**: `dhunlive.com` A `216.198.79.1` and `64.29.17.1`, `www` CNAME to
+`d98efbbae2e133c7.vercel-dns-017.com`. `dhunlive.com` serves the site and `www` redirects
+to it with a 308, because the canonical URLs are on `dhunlive.com`. The certificate is
+Vercel's, from Let's Encrypt, renewed automatically. Email records (Google Workspace MX,
+SPF, DKIM, DMARC) are separate and were not touched.
+
+First-time setup, for reference:
+
 1. Vercel › **Add New › Project** › import `Sumit240803/dhun`.
 2. **Root Directory:** `site`. Vercel detects Next.js; leave the build settings at their
    defaults.
