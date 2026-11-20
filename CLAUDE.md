@@ -639,13 +639,14 @@ walkthrough, the costs, and what notices each failure are there.
 
 ### `site/` — dhunlive.com, built, not deployed
 
-Static HTML and CSS, no build step, English with a Hindi switch (`i18n.js`), self-hosted
-fonts, a CSP that allows only its own origin. The home page and the account deletion page
-Google Play requires. Deployed by Cloudflare Pages with `site` as the output folder.
-**Read `docs/website.md` first**: it lists what must be filled in before launch (the
-Grievance Officer's name, the company's CIN, the mailboxes, privacy and terms) and the
-rules. Every claim must be true of the app, it never promises earnings, and it never adds
-an undecided feature. Anything in `site/` is public, so notes go in `docs/`.
+Next.js (App Router), every route prerendered static, for Vercel with `site` as the root
+directory. English at `/`, Hindi at `/hi`, and the account deletion page Google Play
+requires. All copy lives in `content/copy.tsx`, typed so a missing Hindi string fails the
+build; fonts are self-hosted through `next/font/local`; the CSP allows only its own origin.
+**Read `docs/website.md` first**: what must be filled in before launch (the Grievance
+Officer's name, the CIN, the mailboxes, privacy and terms) and the rules. Every claim must
+be true of the app, it never promises earnings, and it never adds an undecided feature.
+This Next.js version has breaking changes; `site/AGENTS.md` says where its docs are.
 
 ### `mobile/` — 35 routes, 31 of them built (the four legal pages wait for a lawyer's text).
 
