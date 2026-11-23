@@ -890,6 +890,12 @@ p {
   color: var(--ink-2);
 }
 
+.doc .updated {
+  margin-top: 12px;
+  font-size: 0.9375rem;
+  color: var(--ink-2);
+}
+
 .doc h2 {
   font-size: 1.625rem;
   margin-top: 56px;

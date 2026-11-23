@@ -27,9 +27,12 @@ These are on the page as placeholders and must be real before launch:
    footer should carry the full name, CIN and registered office address.
 3. **The mailboxes.** `support@`, `grievance@`, `hosts@` and `partners@dhunlive.com` must
    exist, as aliases on `dev@` at least. Every one is linked from the page.
-4. **Privacy policy and terms.** Listed in the footer as "before launch". Google Play needs
-   the privacy policy URL before the first submission. Add routes for them once a lawyer has
-   written them, and link them.
+4. **Terms of service.** Still "before launch" in the footer; add the route once a lawyer has
+   written them. **The privacy policy is live** at `/privacy` and `/hi/privacy` (2026-11-23),
+   written from what the code does — a lawyer should still review it. Every retention number
+   in it comes from the code; change a purge job or `deleteAccount` and change the page (and
+   its date) in the same commit. It promises one manual step: uploaded photo files deleted
+   within 7 days of a request to support@, because nothing deletes R2 objects yet.
 5. **The financial-records retention period** ("up to eight years" on the deletion page)
    is the CA's to confirm.
 
