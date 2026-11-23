@@ -37,6 +37,22 @@
         "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "420866654846-6tmnfsn48lgl5daa2mnhm5o27qkl35kd.apps.googleusercontent.com"
       }
     },
+    "testing": {
+      "distribution": "store",
+      "environment": "preview",
+      "channel": "testing",
+      "autoIncrement": true,
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_ENV": "staging",
+        "EXPO_PUBLIC_API_URL": "https://api-dev.dhunlive.com",
+        "EXPO_PUBLIC_GATEWAY_URL": "wss://api-dev.dhunlive.com",
+        "EXPO_PUBLIC_SENTRY_DSN": "https://0b51d627f0324a2e805f414261f99fee@o4512396487819264.ingest.de.sentry.io/4512396556238928",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "420866654846-6tmnfsn48lgl5daa2mnhm5o27qkl35kd.apps.googleusercontent.com"
+      }
+    },
     "production": {
       "distribution": "store",
       "environment": "production",
@@ -50,7 +66,8 @@
         "EXPO_PUBLIC_GATEWAY_URL": "wss://gateway.dhun.live",
         "EXPO_PUBLIC_SENTRY_DSN": "https://0b51d627f0324a2e805f414261f99fee@o4512396487819264.ingest.de.sentry.io/4512396556238928",
         "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "420866654846-6tmnfsn48lgl5daa2mnhm5o27qkl35kd.apps.googleusercontent.com"
-      }
+      },
+      "autoIncrement": true
     }
   },
   "submit": {
