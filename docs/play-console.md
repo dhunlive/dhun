@@ -14,6 +14,12 @@ Users and permissions). Tools in `~/.claude/tools/`: `play-token.ps1`, `play-upl
   icon, feature graphic, phone screenshots.
 - Contact email `support@dhunlive.com`, website `https://dhunlive.com`.
 
+**State on 2026-11-23:** listing complete in en-IN and hi-IN (4 phone screenshots from the
+testing build on an emulator, icon, feature graphic). Closed testing (`alpha`) holds
+versionCode 2 as a **draft** release, "Closed test 1 (dev server)", with notes in both
+languages. Google refuses anything but a draft until the app's first review, so the first
+"Send for review" is a console click; after that releases roll out by API.
+
 ## Console only — Google has no API for these
 
 Play Console › the app › **Policy and programs › App content**. Answers are true of the
@@ -31,6 +37,7 @@ testing build against the dev server; revisit each before production.
 | **Financial features** | My app doesn't provide any financial features. |
 | **Health** | No health features. |
 | **Data safety** | See below. |
+| **Store settings › App category** | Category **Social**. (Under Grow › Store presence › Store settings.) |
 
 ### Data safety
 
@@ -61,6 +68,14 @@ Collected (all *required* unless noted; none sold, none for ads):
 
 Not collected: location, contacts, calendar, files and docs, web history, health, financial
 account details.
+
+## Sending the first closed test for review
+
+1. Every **App content** form above, plus the app category.
+2. Test and release › Testing › **Closed testing** › the track › **Countries/regions**: India.
+3. Same track › **Testers**: create an email list, add the testers' Google accounts.
+4. **Publishing overview › Send changes for review.** Closed-test reviews take from hours to
+   a few days for a new app.
 
 ## Closed testing (personal account rule)
 
