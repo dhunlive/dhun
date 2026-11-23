@@ -1,5 +1,5 @@
-import { Footer, Header } from "@/components/Chrome";
-import { copyFor, type Lang } from "@/content/copy";
+import { Footer, Header } from '@/components/Chrome';
+import { copyFor, type Lang } from '@/content/copy';
 
 // The privacy policy (Play Console › App content › Privacy policy links here).
 // Every statement is true of the code as of the "updated" date: retention numbers
@@ -14,13 +14,7 @@ export function PrivacyPage({ lang }: { lang: Lang }) {
       <a className="skip" href="#main">
         {c.skip}
       </a>
-      <Header
-        copy={c}
-        lang={lang}
-        path="/privacy"
-        tone="light"
-        sections={false}
-      />
+      <Header copy={c} lang={lang} path="/privacy" tone="light" sections={false} />
 
       <main id="main" className="doc">
         <div className="wrap">
@@ -32,9 +26,7 @@ export function PrivacyPage({ lang }: { lang: Lang }) {
           {p.sections.map((s) => (
             <section key={s.title}>
               <h2>{s.title}</h2>
-              {s.body?.map((para, i) => (
-                <p key={i}>{para}</p>
-              ))}
+              {s.body?.map((para, i) => <p key={i}>{para}</p>)}
               {s.list && (
                 <ul>
                   {s.list.map((item, i) => (
