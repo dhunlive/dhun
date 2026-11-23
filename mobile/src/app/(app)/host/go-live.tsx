@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { KeyboardStickyView } from 'react-native-keyboard-controller';
+import { KeyboardAwareScrollView, KeyboardStickyView } from 'react-native-keyboard-controller';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { useMyAppeal } from '@/api/queries/useAppeal';
@@ -198,7 +198,7 @@ export default function GoLiveScreen() {
   }
 
   return (
-    <Screen padded={false} edges={['top']}>
+    <Screen padded={false} edges={['top', 'bottom']}>
       <Row style={styles.header} gap="md">
         <Pressable
           onPress={() => router.back()}
@@ -211,7 +211,15 @@ export default function GoLiveScreen() {
         <Text variant="heading">{t('room.goLiveTitle')}</Text>
       </Row>
 
-      <View style={styles.body}>
+      {/* The form scrolls and the start button stays pinned under it. As one
+          fixed column the form outgrew a Pixel 7 screen and pushed the button
+          off the bottom with no way to reach it. */}
+      <KeyboardAwareScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.form}
+        keyboardShouldPersistTaps="handled"
+        bottomOffset={spacing.xl}
+      >
         <Animated.View entering={FadeInDown.duration(280)}>
           <Column gap="xs" style={styles.intro}>
             <Text variant="title">{t('room.goLiveTitle')}</Text>
@@ -370,9 +378,9 @@ export default function GoLiveScreen() {
             <Banner message={errorMessage(goLive.error)} detail={traceReference(goLive.error)} />
           </View>
         )}
+      </KeyboardAwareScrollView>
 
-        <View style={styles.spacer} />
-
+      <View style={styles.footer}>
         <KeyboardStickyView offset={{ closed: 0, opened: spacing.md }}>
           <Button
             label={t('room.startBroadcast')}
@@ -441,10 +449,11 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md },
   guestHeader: { height: 44, marginLeft: -spacing.xs },
   centre: { flex: 1, justifyContent: 'center' },
-  body: { flex: 1, paddingHorizontal: spacing.lg, paddingBottom: spacing.lg },
+  scroll: { flex: 1 },
+  form: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xl },
+  footer: { paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.lg },
   intro: { marginBottom: spacing.xl },
   banner: { marginTop: spacing.lg },
-  spacer: { flex: 1, minHeight: spacing.xl },
   type: {
     flex: 1,
     gap: spacing.xs,
